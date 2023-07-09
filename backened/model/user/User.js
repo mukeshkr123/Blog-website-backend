@@ -115,14 +115,3 @@ const User = mongoose.model("User", userSchema);
 
 //export
 module.exports = User;
-
-// //Hash password
-// userSchema.pre("save", async function (next) {
-//     if (!this.isModified("password")) {
-//       next();
-//     } /// for resaving when password is changed
-//     //hash password
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//     next();
-//   });
