@@ -1,3 +1,4 @@
+const generateToken = require("../../config/token/generateToken");
 const User = require("../../model/user/User");
 const expressAsyncHandler = require("express-async-handler");
 
@@ -35,6 +36,7 @@ const loginUserCtrl = expressAsyncHandler(async (req, res) => {
       email: userFound?.email,
       profilePhoto: userFound?.profilePhoto,
       isAdmin: userFound?.isAdmin,
+      token: generateToken(userFound?._id),
     });
   } else {
     res.status(401);
