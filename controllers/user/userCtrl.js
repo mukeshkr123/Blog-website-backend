@@ -17,7 +17,7 @@ const userRegisterCtrl = expressAsyncHandler(async (req, res) => {
     });
     res.json(user);
   } catch (error) {
-    console.log(error);
+    res.json(error);
   }
 });
 
@@ -26,7 +26,8 @@ const loginUserCtrl = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
   //find the user by email
   const userFound = await User.findOne({ email });
-  if (userFound) {
+  //check if the password is correc match
+  if (userFound && (await userFound.isPasswordMatched(password))) {
     res.json({
       _id: userFound?._id,
       firstName: userFound?.firstName,
