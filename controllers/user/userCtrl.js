@@ -1,7 +1,8 @@
 const User = require("../../model/user/User");
+const expressAsyncHandler = require("express-async-handler");
 
 //Register a User
-const userRegisterCtrl = async (req, res) => {
+const userRegisterCtrl = expressAsyncHandler(async (req, res) => {
   // prevent duplicate registration of user
   const userFound = await User.findOne({ email: req.body.email });
   console.log(userFound);
@@ -18,7 +19,7 @@ const userRegisterCtrl = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-};
+});
 
 module.exports = {
   userRegisterCtrl,
