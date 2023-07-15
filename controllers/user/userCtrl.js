@@ -44,7 +44,20 @@ const loginUserCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+//----------------------------------------------------------------
+//fetch all users
+//----------------------------------------------------------------
+const fetchUsersCtrl = expressAsyncHandler(async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
+  fetchUsersCtrl,
 };
