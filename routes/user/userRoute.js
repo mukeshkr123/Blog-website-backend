@@ -6,6 +6,7 @@ const {
   fetchUserCtrl,
   fetchUserProfileCtrl,
   updateUserProfileCtrl,
+  updatePasswordCtrl,
 } = require("../../controllers/user/userCtrl");
 const authMiddleware = require("../../middlewares/auth/authMiddlewarw");
 const userRoutes = express.Router();
@@ -17,5 +18,6 @@ userRoutes.get("/:id", fetchUserCtrl);
 userRoutes.get("/profile/:id", authMiddleware, fetchUserProfileCtrl);
 userRoutes.get("/profile/:id", authMiddleware, fetchUserProfileCtrl);
 userRoutes.put("/update-profile", authMiddleware, updateUserProfileCtrl);
+userRoutes.put("/change-password", authMiddleware, updatePasswordCtrl);
 
 module.exports = userRoutes;

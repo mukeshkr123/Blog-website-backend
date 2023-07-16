@@ -3,98 +3,90 @@ const User = require("../../model/user/User");
 const expressAsyncHandler = require("express-async-handler");
 const validateMongoId = require("../../utils/validateMongodbID");
 
-//Register a User
+// Register a User
 const userRegisterCtrl = expressAsyncHandler(async (req, res) => {
-  // prevent duplicate registration of user
-  const userFound = await User.findOne({ email: req.body.email });
-  console.log(userFound);
+  const { firstName, lastName, email, password } = req.body;
 
-  if (userFound) throw new Error("User already exists ");
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    throw new Error("User already exists");
+  }
+
   try {
-    const user = await User.create({
-      firstName: req?.body?.firstName,
-      lastName: req?.body?.lastName,
-      email: req?.body?.email,
-      password: req?.body?.password,
-    });
+    const user = await User.create({ firstName, lastName, email, password });
     res.json(user);
   } catch (error) {
-    res.json(error);
+    res.status(500).json({ error: "Failed to register user" });
   }
 });
 
-//Login user Controllers
+// Login User Controller
 const loginUserCtrl = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  //find the user by email
-  const userFound = await User.findOne({ email });
-  //check if the password is correc match
-  if (userFound && (await userFound.isPasswordMatched(password))) {
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.isPasswordMatched(password))) {
+    const { _id, firstName, lastName, profilePhoto, isAdmin } = user;
+
     res.json({
-      _id: userFound?._id,
-      firstName: userFound?.firstName,
-      lastName: userFound?.lastName,
-      email: userFound?.email,
-      profilePhoto: userFound?.profilePhoto,
-      isAdmin: userFound?.isAdmin,
-      token: generateToken(userFound?._id),
+      _id,
+      firstName,
+      lastName,
+      email,
+      profilePhoto,
+      isAdmin,
+      token: generateToken(_id),
     });
   } else {
-    res.status(401);
-    throw new Error("Invalid Login Credentials");
+    res.status(401).json({ error: "Invalid login credentials" });
   }
 });
 
-//----------------------------------------------------------------
-//fetch all users
-//----------------------------------------------------------------
+// Fetch all Users
 const fetchUsersCtrl = expressAsyncHandler(async (req, res) => {
   try {
     const users = await User.find({});
     res.json(users);
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ error: "Failed to fetch users" });
   }
 });
 
-//----------------------------------------------------------------
-//fetch  user details
-//----------------------------------------------------------------
+// Fetch User Details
 const fetchUserCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
-  // checkk user id is valid or not
+
   validateMongoId(id);
+
   try {
     const user = await User.findById(id);
     res.json(user);
   } catch (error) {
-    res.json(error);
+    res.status(500).json({ error: "Failed to fetch user details" });
   }
 });
 
-//----------------------------------------------------------------
-//fetch  user,profile details
-//----------------------------------------------------------------
+// Fetch User Profile Details
 const fetchUserProfileCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
-  // checkk user id is valid or not
+
   validateMongoId(id);
+
   try {
     const userProfile = await User.findById(id);
     res.json(userProfile);
   } catch (error) {
-    res.json(error);
+    res.status(500).json({ error: "Failed to fetch user profile" });
   }
 });
 
-//----------------------------------------------------------------
-//update user,profile details
-//----------------------------------------------------------------
+// Update User Profile
 const updateUserProfileCtrl = expressAsyncHandler(async (req, res) => {
   const userId = req.user._id;
 
   try {
-    // Update the user profile
     const userProfile = await User.findByIdAndUpdate(
       userId,
       {
@@ -114,6 +106,33 @@ const updateUserProfileCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// Update Password
+const updatePasswordCtrl = expressAsyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isPasswordValid = await user.isPasswordMatched(currentPassword);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Incorrect current password" });
+    }
+
+    user.password = newPassword;
+    const updatedUser = await user.save();
+
+    res.json({ message: "Password changed successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to change password" });
+  }
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
@@ -121,4 +140,5 @@ module.exports = {
   fetchUserCtrl,
   fetchUserProfileCtrl,
   updateUserProfileCtrl,
+  updatePasswordCtrl,
 };
