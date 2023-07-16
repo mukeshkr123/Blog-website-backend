@@ -1,6 +1,7 @@
 const generateToken = require("../../config/token/generateToken");
 const User = require("../../model/user/User");
 const expressAsyncHandler = require("express-async-handler");
+const validateMongoId = require("../../utils/validateMongodbID");
 
 //Register a User
 const userRegisterCtrl = expressAsyncHandler(async (req, res) => {
@@ -56,8 +57,24 @@ const fetchUsersCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+//----------------------------------------------------------------
+//fetch  user details
+//----------------------------------------------------------------
+const fetchUserCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  // checkk user id is valid or not
+  validateMongoId(id);
+  try {
+    const user = await User.findById(id);
+    res.json(user);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
   fetchUsersCtrl,
+  fetchUserCtrl,
 };
