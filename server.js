@@ -1,28 +1,26 @@
 const express = require("express");
-const dbConnect = require("./config/db/dbConnet");
+const dbConnect = require("./config/db/dbConnect");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/user/userRoute");
-const { errorHandler, notFound } = require("./middlewares/error/erroHandler");
-const app = express();
+const { errorHandler, notFound } = require("./middlewares/error/errorHandler");
 
+const app = express();
 dotenv.config();
 
-//db connection
+// Database connection
 dbConnect();
 
-//json paser
+// JSON parser
 app.use(express.json());
 
-//Routes
+// Routes
 app.use("/api/users", userRoutes);
 
-//err handler
-app.use(notFound); // not found error
+// Error handlers
+app.use(notFound); // Not found error
 app.use(errorHandler);
 
-//PORT
 const PORT = process.env.PORT || 4000;
-//server
 app.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);
 });
