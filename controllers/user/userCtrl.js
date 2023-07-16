@@ -87,10 +87,38 @@ const fetchUserProfileCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+//----------------------------------------------------------------
+//update user,profile details
+//----------------------------------------------------------------
+const updateUserProfileCtrl = expressAsyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    // Update the user profile
+    const userProfile = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          bio: req.body.bio,
+        },
+      },
+      { new: true }
+    );
+
+    res.json(userProfile);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update user profile" });
+  }
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
   fetchUsersCtrl,
   fetchUserCtrl,
   fetchUserProfileCtrl,
+  updateUserProfileCtrl,
 };
