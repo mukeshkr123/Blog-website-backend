@@ -14,6 +14,19 @@ const CreateCategoryCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// fetch all categories
+const fetchCategoriesCtrl = expressAsyncHandler(async (req, res) => {
+  try {
+    const categories = await Category.find({})
+      .populate("user") // populate is used for fetchinge user details from user id
+      .sort("-createdAt");
+    res.json(categories);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 module.exports = {
   CreateCategoryCtrl,
+  fetchCategoriesCtrl,
 };
