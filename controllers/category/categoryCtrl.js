@@ -1,5 +1,6 @@
 const expressAsyncHandler = require("express-async-handler");
-const Category = require("../../model/category/Category");
+const Category = require("../../model/Category/Category");
+const validateMongoId = require("../../utils/validateMongodbID");
 
 //create category
 const CreateCategoryCtrl = expressAsyncHandler(async (req, res) => {
@@ -18,9 +19,53 @@ const CreateCategoryCtrl = expressAsyncHandler(async (req, res) => {
 const fetchCategoriesCtrl = expressAsyncHandler(async (req, res) => {
   try {
     const categories = await Category.find({})
-      .populate("user") // populate is used for fetchinge user details from user id
+      .populate("user")
       .sort("-createdAt");
     res.json(categories);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+// fetch a single category
+const fetchCategoryCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
+  try {
+    const categoriey = await Category.findById(id);
+    res.json(categoriey);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+//update category
+const updateCategoryCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
+  try {
+    const category = await Category.findByIdAndUpdate(
+      id,
+      {
+        title: req?.body?.title,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json(category);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+// delete  a category
+const deleteCategoryCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
+  try {
+    const category = await Category.findByIdAndDelete(id);
+    res.json(category);
   } catch (error) {
     res.json(error);
   }
@@ -29,4 +74,7 @@ const fetchCategoriesCtrl = expressAsyncHandler(async (req, res) => {
 module.exports = {
   CreateCategoryCtrl,
   fetchCategoriesCtrl,
+  fetchCategoryCtrl,
+  updateCategoryCtrl,
+  deleteCategoryCtrl,
 };
