@@ -198,6 +198,18 @@ const unfollowUserCtrl = expressAsyncHandler(async (req, res) => {
   res.json("You have successfully unfollowed this user");
 });
 
+// Block user
+const blockUserCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
+
+  const user = await User.findByIdAndUpdate(id, {
+    isBlocked: true,
+  });
+
+  res.json(user);
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
@@ -208,4 +220,5 @@ module.exports = {
   updatePasswordCtrl,
   followUserCtrl,
   unfollowUserCtrl,
+  blockUserCtrl,
 };
