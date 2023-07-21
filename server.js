@@ -3,6 +3,7 @@ const dbConnect = require("./config/db/dbConnect");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/user/userRoute");
 const { errorHandler, notFound } = require("./middlewares/error/errorHandler");
+const categoryRoute = require("./routes/category/categoryRoutes");
 
 const app = express();
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/category", categoryRoute);
 
 // Error handlers
 app.use(notFound); // Not found error
