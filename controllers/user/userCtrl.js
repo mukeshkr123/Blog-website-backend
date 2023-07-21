@@ -167,7 +167,35 @@ const followUserCtrl = expressAsyncHandler(async (req, res) => {
     }
   );
 
-  res.json("Followed Successfully");
+  res.json("Followed User Successfully");
+});
+
+// unfollow the user
+const unfollowUserCtrl = expressAsyncHandler(async (req, res) => {
+  const { unfollowId } = req.body;
+  const loginUserId = req.user.id;
+
+  await User.findByIdAndUpdate(
+    unfollowId,
+    {
+      $pull: { followers: loginUserId },
+      isFollowing: false,
+    },
+    {
+      new: true,
+    }
+  );
+
+  await User.findByIdAndUpdate(
+    loginUserId,
+    {
+      $pull: { following: unfollowId },
+    },
+    {
+      new: true,
+    }
+  );
+  res.json("You have successfully unfollowed this user");
 });
 
 module.exports = {
@@ -179,4 +207,5 @@ module.exports = {
   updateUserProfileCtrl,
   updatePasswordCtrl,
   followUserCtrl,
+  unfollowUserCtrl,
 };
