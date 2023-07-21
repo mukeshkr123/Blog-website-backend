@@ -133,6 +133,43 @@ const updatePasswordCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// following
+const followUserCtrl = expressAsyncHandler(async (req, res) => {
+  const { followId } = req.body;
+  const loginUserId = req.user.id;
+
+  //find the target user and check if loginuser id aleready exists in the following
+  const targetUser = await User.findById(followId);
+
+  //check if already following
+  const alreadyfollowing = targetUser?.followers?.find(
+    (user) => user?.toString() === loginUserId.toString()
+  );
+
+  if (alreadyfollowing) throw new Error("you have already following this user");
+  // find the user you want to follow and update its followers field
+  await User.findByIdAndUpdate(followId, {
+    $push: { followers: loginUserId },
+  }),
+    {
+      new: true,
+    };
+
+  //2. find the login user and update its following field
+
+  await User.findByIdAndUpdate(
+    loginUserId,
+    {
+      $push: { following: followId },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.json("Followed Successfully");
+});
+
 module.exports = {
   userRegisterCtrl,
   loginUserCtrl,
@@ -141,4 +178,5 @@ module.exports = {
   fetchUserProfileCtrl,
   updateUserProfileCtrl,
   updatePasswordCtrl,
+  followUserCtrl,
 };
